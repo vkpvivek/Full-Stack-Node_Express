@@ -12,7 +12,7 @@ exports.addBook= async (req,res,next)=>{
         isReturned:false
     });
 
-    console.log(data);
+    console.log(data.createdAt.getHours());
 
     res.status(201).json({
         newOrderDetails:data

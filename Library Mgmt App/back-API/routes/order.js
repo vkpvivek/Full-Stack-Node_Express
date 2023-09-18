@@ -9,7 +9,6 @@ router.post('/add-book',orderController.addBook);
 
 router.put('/return-book/:id',orderController.returnBook);
 
-//router.put('/edit-user',userController.editUser);
 
 router.get('/home',(req,res,next)=>{
     res.send("HomePage");

@@ -62,37 +62,112 @@ function showTable1(obj){
     const childElem=document.createElement('li');
     childElem.className='list-group-item';
 
-    childElem.textContent=obj.Book+" , ---      Fine : "+obj.fine +"      -- Borrowed at:"+obj.createdAt;
+    // Calculating new-Fine
+            const date=obj.createdAt;
+            const StartTime= new Date(date);
+            const CurrTime = new Date();
+            const timeDifferenceMs = CurrTime - StartTime;
+            // Convert milliseconds to hours
+            const hoursDifference = timeDifferenceMs / (1000 * 60 * 60);
+            TimeTaken =Math.floor(hoursDifference);
 
-    //create Delete Button to add in li
+            const newFine=TimeTaken*10;
+
+    //Reformating Time
+            const cleanedDatetime = date.replace("T", " ").replace(".000Z", "");
+
+    childElem.textContent=obj.Book +" ,   ||   Borrowed at:>>   "+cleanedDatetime +", || Fine :>>   "+newFine;
+
+    //create Return Button to add in li
     var returnBtn = document.createElement('button');
-    returnBtn.className ='delete';
+    returnBtn.className ='Return';
     returnBtn.style='float:right';  
     returnBtn.appendChild(document.createTextNode('Return'));
 
-    returnBtn.onclick=()=>{
 
-        axios.put(`http://localhost:3000/return-book/${obj.id}`, {
-            Book:obj.Book,
-            fine:10
-            })
-            .then(response => console.log(response.data))
-            .catch(error => console.error(error));
 
-        parElem.removeChild(childElem);
+    returnBtn.onclick = () => {
+        childElem.removeChild(returnBtn);
+    
+        // Creating Form Inside Child Element
+        const formInput = document.createElement('form');
+        const divElem = document.createElement('div');
+        divElem.className = 'form-group col-md-4';
+    
+        var fineInput = document.createElement('input');
+        fineInput.className = 'form-control';
+        fineInput.type = "text";
+        fineInput.placeholder=newFine;
+        divElem.appendChild(fineInput);
+    
+        var btnPay = document.createElement('button');
+        btnPay.className = 'btn btn-success';
+        btnPay.type = "submit";
+        btnPay.appendChild(document.createTextNode('Pay Fine'));
+    
+        btnPay.onclick = (e) => {
+            e.preventDefault();
+
+            axios.put(`http://localhost:3000/return-book/${obj.id}`, {
+                Book:obj.Book,
+                fine:newFine
+                })
+                .then(response => {
+                    console.log(response.data);
+                })
+                .then(
+                    setTimeout(() => {
+                        window.location.reload(); // Reload the page after a short delay
+                    }, 100)
+                )
+                .catch(error => console.log(error)); 
+            
+            //location.reload();
+            console.log("Fine Paid");
+            
+        }
+
+        divElem.appendChild(btnPay);
+    
+        formInput.appendChild(divElem);
+        childElem.appendChild(formInput);
     }
+
     childElem.appendChild(returnBtn);    //add delete button Li
 
     parElem.appendChild(childElem);
 }
 
 
+
 function showTable2(obj){
     const parElem=document.getElementById('table2Details');
     const childElem=document.createElement('li');
-    childElem.className='list-group-item';
+    childElem.className='list-group-item ';
 
-    childElem.textContent= obj.Book+" -- "+obj.fine +" -- "+obj.createdAt;
+    const date=obj.createdAt;
+    const rtDate=obj.updatedAt;
+    const ST = date.replace("T", " ").replace(".000Z", "");
+    const RT = rtDate.replace("T", " ").replace(".000Z", "");
+
+    childElem.textContent= obj.Book; 
+
+    const h1=document.createElement('p');
+    h1.className="mb-3";
+    h1.textContent="Borrowed At: >>"+ST;
+    childElem.appendChild(h1);
+    
+    const h2=document.createElement('p');
+    h2.className="mb-3";
+    h2.textContent=" RETURNED At: >>"+RT;
+    childElem.appendChild(h2);
+
+    const h3=document.createElement('p');
+    h3.className="mb-3";
+    h3.textContent="Fine Paid:>> "+obj.fine;
+    childElem.appendChild(h3);
+
+
 
     parElem.appendChild(childElem);
 }
